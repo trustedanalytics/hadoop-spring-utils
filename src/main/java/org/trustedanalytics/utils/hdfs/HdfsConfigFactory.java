@@ -15,12 +15,10 @@
  */
 package org.trustedanalytics.utils.hdfs;
 
-import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,12 +32,17 @@ import org.trustedanalytics.hadoop.config.PropertyLocator;
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Map;
 
 
 @org.springframework.context.annotation.Configuration
 public class HdfsConfigFactory {
+
+    private static String HADOOP_PARAMS_ENVVAR = "HADOOP_PARAMS";
+
+    public enum Profiles {
+        CLOUD, EMBEDDED
+    }
 
     private final ConfigurationHelper confHelper;
 
@@ -50,9 +53,6 @@ public class HdfsConfigFactory {
 
     @Value("${hdfs.user:}")
     private String hdfsUser;
-
-    @Value("${hdfs.uri:}")
-    private String hdfsUri;
 
     @Value("${kerberos.user:}")
     private String kerberosUser;
@@ -68,8 +68,7 @@ public class HdfsConfigFactory {
     @Bean
     @Profile("cloud")
     public HdfsConfig configFromBroker() throws Exception {
-        hdfsUri = getHdfsUriFromConfig();
-        return createConfig(getConfigFromCf());
+        return createConfig(getConfigFromCf(), getHdfsUriFromConfig());
     }
 
     private Configuration getConfigFromCf() throws IOException {
@@ -83,26 +82,32 @@ public class HdfsConfigFactory {
     }
 
     @Bean
-    @Profile("hdfs-local")
-    public HdfsConfig configFromEnv() throws Exception {
-        return createConfig(new Configuration());
+    @Profile("external")
+    public HdfsConfig configFromEnv(@Value("${hdfs.uri:}") String hdfsUri) throws Exception {
+        return createConfig(getConfigFromEnv(), hdfsUri);
     }
 
     @Bean
-    @Profile({"localfs", "default"})
-    public HdfsConfig configOnLocalFS() throws IOException, LoginException {
-        String folder = env.getProperty("FOLDER");
-        if (Strings.isNullOrEmpty(folder)) {
+    @Profile("local")
+    public HdfsConfig configLocalFS(@Value("${hdfs.uri:}") String hdfsUri) throws Exception {
+        Configuration configuration = new Configuration();
+        FileSystem fileSystem = FileSystem.getLocal(configuration);
+        return createConfig(fileSystem, createTmpDir(), "hdfs", configuration);
+    }
+
+    private Configuration getConfigFromEnv() throws IOException {
+        Configuration configuration = new Configuration();
+        Map<String, String> map = confHelper.getConfigurationFromEnv(HADOOP_PARAMS_ENVVAR,
+                ConfigurationLocator.HADOOP);
+        map.forEach(configuration::set);
+        return configuration;
+    }
+
+
+    private String createTmpDir() {
             File tmpFolder = Files.createTempDir();
             tmpFolder.deleteOnExit();
-            folder = tmpFolder.getAbsolutePath();
-        }
-        Configuration config = new Configuration(false);
-        config.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, folder);
-        FileSystem fileSystem = new MiniDFSCluster.Builder(config)
-            .build()
-            .getFileSystem();
-        return createConfig(fileSystem, folder, "hdfs", config);
+            return tmpFolder.getAbsolutePath();
     }
 
     private String getHdfsUriFromConfig() throws Exception {
@@ -110,25 +115,27 @@ public class HdfsConfigFactory {
             .orElseThrow(() -> new IllegalStateException("HDFS_URI not found in VCAP_SERVICES"));
     }
 
-    private HdfsConfig createConfig(Configuration config) throws Exception {
-        FileSystem fs = FileSystem.get(new URI(hdfsUri), config, hdfsUser);
+    private HdfsConfig createConfig(Configuration config, String hdfsUri) throws Exception {
+        loginIfNeeded(config);
+        FileSystem fs = HdfsConfiguration.newInstance(config, hdfsUri, hdfsUser).getFileSystem();
         return createConfig(fs, hdfsUri, hdfsUser, config);
     }
 
     private HdfsConfig createConfig(FileSystem fileSystem, String hdfsUri, String hdfsUser,
         Configuration config) throws IOException, LoginException {
-
-        if (kerberosHelper.isClusterIsSecuredByKerberos(config)) {
-            kerberosHelper.login(config, kerberosUser, kerberosPass);
-        }
-
         Path folder = new Path(hdfsUri);
-        if (!fileSystem.exists(folder)) {
-            fileSystem.mkdirs(folder);
-        }
         fileSystem.setWorkingDirectory(folder);
         return new HdfsConfig(fileSystem, hdfsUser, folder);
     }
 
-
+    /**
+     * @param config
+     * @throws IOException
+     * @throws LoginException
+     */
+    private void loginIfNeeded(Configuration config) throws IOException, LoginException {
+        if (kerberosHelper.isClusterIsSecuredByKerberos(config)) {
+            kerberosHelper.login(config, kerberosUser, kerberosPass);
+        }
+    }
 }
