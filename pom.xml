@@ -10,9 +10,9 @@
 	<artifactId>hadoop-spring-utils</artifactId>
         <scm>
           <connection>scm:git:git@hadoop-spring-utils:trustedanalytics/hadoop-spring-utils.git</connection>
-          <tag>org.trustedanalytics.hadoop-spring-utils-0.4.1</tag>
+          <tag>HEAD</tag>
   </scm>
-	<version>0.4.1</version>
+	<version>0.4.2-SNAPSHOT</version>
 	<properties>
 		<cdh-version>2.6.0-cdh5.4.2.1</cdh-version>
 		<spring-version>4.1.6.RELEASE</spring-version>
