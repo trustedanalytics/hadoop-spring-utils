@@ -10,9 +10,9 @@
     <artifactId>hadoop-spring-utils</artifactId>
     <scm>
         <connection>scm:git:git@github.com:${git-repository}/hadoop-spring-utils.git</connection>
-        <tag>hadoop-spring-utils-0.4.2</tag>
+        <tag>HEAD</tag>
     </scm>
-    <version>0.4.2</version>
+    <version>0.4.3-SNAPSHOT</version>
     <properties>
         <spring-version>4.1.6.RELEASE</spring-version>
         <jersey-server-version>1.9</jersey-server-version>
