@@ -9,7 +9,7 @@
     </parent>
     <artifactId>hadoop-spring-utils</artifactId>
     <scm>
-        <connection>scm:git:git@hadoop-spring-utils:trustedanalytics/hadoop-spring-utils.git</connection>
+        <connection>scm:git:git@github.com:${git-repository}/hadoop-spring-utils.git</connection>
         <tag>HEAD</tag>
     </scm>
     <version>0.4.2-SNAPSHOT</version>
@@ -20,6 +20,7 @@
         <jacoco-measurement-branches>0.0000</jacoco-measurement-branches>
         <jacoco-measurement-lines>0.0945</jacoco-measurement-lines>
         <jacoco-measurement-classes>0.2000</jacoco-measurement-classes>
+        <git-repository></git-repository>
     </properties>
 
     <dependencies>
@@ -31,7 +32,7 @@
         <dependency>
             <groupId>org.trustedanalytics</groupId>
             <artifactId>hadoop-utils</artifactId>
-            <version>0.4.2-SNAPSHOT</version>
+            <version>0.4.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
