@@ -8,7 +8,7 @@
         <version>0.4.5</version>
     </parent>
     <artifactId>hadoop-spring-utils</artifactId>
-    <version>0.4.3-SNAPSHOT</version>
+    <version>0.4.3</version>
     <properties>
         <spring-version>4.1.6.RELEASE</spring-version>
         <jersey-server-version>1.9</jersey-server-version>
@@ -81,4 +81,8 @@
         </dependency>
     </dependencies>
 
+
+  <scm>
+    <tag>org.trustedanalytics.hadoop-spring-utils-0.4.3</tag>
+  </scm>
 </project>
