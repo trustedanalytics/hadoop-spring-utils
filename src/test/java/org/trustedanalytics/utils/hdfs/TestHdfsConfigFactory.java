@@ -37,10 +37,6 @@ public class TestHdfsConfigFactory {
 
     private static String HADOOP_PARAMS_ENVVAR = "HADOOP_PARAMS";
 
-    public enum Profiles {
-        CLOUD, EMBEDDED
-    }
-
     @Autowired
     private Environment env;
 

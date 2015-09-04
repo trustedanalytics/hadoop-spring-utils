@@ -52,7 +52,7 @@ public class HdfsConfiguration {
     public FileSystem getFileSystem() throws InterruptedException,
             URISyntaxException, LoginException, IOException {
 
-        if(AUTHENTICATION_METHOD_NAME.equals(hadoopConf.get(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION))) {
+        if (AUTHENTICATION_METHOD_NAME.equals(hadoopConf.get(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION))) {
             return getSecureFileSystem();
         } else {
             return getInsecureFileSystem();

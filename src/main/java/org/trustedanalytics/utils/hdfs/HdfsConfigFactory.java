@@ -16,6 +16,7 @@
 package org.trustedanalytics.utils.hdfs;
 
 import com.google.common.io.Files;
+import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -39,10 +40,6 @@ import java.util.Map;
 public class HdfsConfigFactory {
 
     private static String HADOOP_PARAMS_ENVVAR = "HADOOP_PARAMS";
-
-    public enum Profiles {
-        CLOUD, EMBEDDED
-    }
 
     private final ConfigurationHelper confHelper;
 
@@ -92,7 +89,11 @@ public class HdfsConfigFactory {
     public HdfsConfig configLocalFS(@Value("${hdfs.uri:}") String hdfsUri) throws Exception {
         Configuration configuration = new Configuration();
         FileSystem fileSystem = FileSystem.getLocal(configuration);
-        return createConfig(fileSystem, createTmpDir(), "hdfs", configuration);
+        String folder = env.getProperty("FOLDER");
+        if (Strings.isNullOrEmpty(folder)) {
+            return createConfig(fileSystem, createTmpDir(), "hdfs", configuration);
+        }
+        return createConfig(fileSystem, folder, "hdfs", configuration);
     }
 
     private Configuration getConfigFromEnv() throws IOException {

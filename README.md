@@ -7,8 +7,10 @@ For now it only supports HDFS and so documentation is only limited to this case.
 In your spring configuration class add annotation
 
 ```
+  import org.trustedanalytics.utils.hdfs.EnableHdfs;
+
   @Configuration
-  @ComponentScan("org.trustedanalytics.utils.hdfs")
+  @EnableHdfs
   public class SomeConfigClass {
   }
 ```
@@ -29,7 +31,7 @@ Now you can use in some class:
   ...
 ```
 
-Which FileSystem is created depends on Spring profile that is active
+Which FileSystem is created depends on Spring profile that is active (to set profile, set SPRING_PROFILES_ACTIVE, for example: `export SPRING_PROFILES_ACTIVE=local`)
 
 ### cloud
 This is profile that is usually activated in Cloud Foundry. It reads:
@@ -58,7 +60,7 @@ It just reads two environment variables:
 - **HDFS_USER**
 
 
-### default, localfs
+### local
 
 It works on a local file system. If the env variable **FOLDER** is set than this is the one that is going to be used. Otherwise, temporary folder will be created that will be removed on normal application termination.
 
