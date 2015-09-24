@@ -33,6 +33,7 @@ import org.trustedanalytics.hadoop.config.PropertyLocator;
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 
 
@@ -47,15 +48,6 @@ public class HdfsConfigFactory {
 
     @Autowired
     private Environment env;
-
-    @Value("${hdfs.user:}")
-    private String hdfsUser;
-
-    @Value("${kerberos.user:}")
-    private String kerberosUser;
-
-    @Value("${kerberos.pass:}")
-    private String kerberosPass;
 
     public HdfsConfigFactory() {
         confHelper = ConfigurationHelperImpl.getInstance();
@@ -79,31 +71,16 @@ public class HdfsConfigFactory {
     }
 
     @Bean
-    @Profile("external")
-    public HdfsConfig configFromEnv(@Value("${hdfs.uri:}") String hdfsUri) throws Exception {
-        return createConfig(getConfigFromEnv(), hdfsUri);
-    }
-
-    @Bean
     @Profile("local")
-    public HdfsConfig configLocalFS(@Value("${hdfs.uri:}") String hdfsUri) throws Exception {
+    public HdfsConfig configLocalFS() throws Exception {
         Configuration configuration = new Configuration();
         FileSystem fileSystem = FileSystem.getLocal(configuration);
         String folder = env.getProperty("FOLDER");
         if (Strings.isNullOrEmpty(folder)) {
-            return createConfig(fileSystem, createTmpDir(), "hdfs", configuration);
+            return createConfig(fileSystem, createTmpDir(), "hdfs");
         }
-        return createConfig(fileSystem, folder, "hdfs", configuration);
+        return createConfig(fileSystem, folder, "hdfs");
     }
-
-    private Configuration getConfigFromEnv() throws IOException {
-        Configuration configuration = new Configuration();
-        Map<String, String> map = confHelper.getConfigurationFromEnv(HADOOP_PARAMS_ENVVAR,
-                ConfigurationLocator.HADOOP);
-        map.forEach(configuration::set);
-        return configuration;
-    }
-
 
     private String createTmpDir() {
             File tmpFolder = Files.createTempDir();
@@ -112,18 +89,19 @@ public class HdfsConfigFactory {
     }
 
     private String getHdfsUriFromConfig() throws Exception {
-        return confHelper.getPropertyFromEnv(PropertyLocator.HDFS_URI)
-            .orElseThrow(() -> new IllegalStateException("HDFS_URI not found in VCAP_SERVICES"));
+        return getPropertyFromCredentials(PropertyLocator.HDFS_URI);
     }
 
     private HdfsConfig createConfig(Configuration config, String hdfsUri) throws Exception {
         loginIfNeeded(config);
-        FileSystem fs = HdfsConfiguration.newInstance(config, hdfsUri, hdfsUser).getFileSystem();
-        return createConfig(fs, hdfsUri, hdfsUser, config);
+        FileSystem fs =
+            FileSystem.get(new URI(hdfsUri), config,
+                           getPropertyFromCredentials(PropertyLocator.USER));
+        return createConfig(fs, hdfsUri, getPropertyFromCredentials(PropertyLocator.USER));
     }
 
-    private HdfsConfig createConfig(FileSystem fileSystem, String hdfsUri, String hdfsUser,
-        Configuration config) throws IOException, LoginException {
+    private HdfsConfig createConfig(FileSystem fileSystem, String hdfsUri, String hdfsUser)
+        throws IOException, LoginException {
         Path folder = new Path(hdfsUri);
         fileSystem.setWorkingDirectory(folder);
         return new HdfsConfig(fileSystem, hdfsUser, folder);
@@ -136,7 +114,15 @@ public class HdfsConfigFactory {
      */
     private void loginIfNeeded(Configuration config) throws IOException, LoginException {
         if (kerberosHelper.isClusterIsSecuredByKerberos(config)) {
-            kerberosHelper.login(config, kerberosUser, kerberosPass);
+            kerberosHelper.login(config,
+                                 getPropertyFromCredentials(PropertyLocator.USER),
+                                 getPropertyFromCredentials(PropertyLocator.PASSWORD));
         }
+    }
+
+    private String getPropertyFromCredentials(PropertyLocator property) throws IOException{
+        return confHelper.getPropertyFromEnv(property)
+            .orElseThrow(() -> new IllegalStateException(
+                property.name() + " not found in VCAP_SERVICES"));
     }
 }
