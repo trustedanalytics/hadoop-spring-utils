@@ -21,7 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
@@ -39,8 +38,6 @@ import java.util.Map;
 
 @org.springframework.context.annotation.Configuration
 public class HdfsConfigFactory {
-
-    private static String HADOOP_PARAMS_ENVVAR = "HADOOP_PARAMS";
 
     private final ConfigurationHelper confHelper;
 

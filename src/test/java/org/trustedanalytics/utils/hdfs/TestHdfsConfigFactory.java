@@ -35,8 +35,6 @@ import java.io.IOException;
 @org.springframework.context.annotation.Configuration
 public class TestHdfsConfigFactory {
 
-    private static String HADOOP_PARAMS_ENVVAR = "HADOOP_PARAMS";
-
     @Autowired
     private Environment env;
 

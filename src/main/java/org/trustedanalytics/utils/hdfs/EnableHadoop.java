@@ -20,6 +20,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * @deprecated  As of release 0.4.8 (from 5th Oct 2015), replaced by {@see #EnableHdfs()}.
+ *    Interface name has been changed for better show of its meaning.
+ */
 @Deprecated
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

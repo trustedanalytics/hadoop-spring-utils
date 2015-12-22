@@ -30,7 +30,7 @@ import java.io.IOException;
 
 public class KerberosHelper {
 
-    private final static Logger LOGGER = LogManager.getLogger(KerberosHelper.class);
+    private static final Logger LOGGER = LogManager.getLogger(KerberosHelper.class);
 
     private static final String AUTHENTICATION_METHOD = "kerberos";
 

@@ -42,8 +42,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(classes = TestHdfsConfigFactory.class)
 public class HdfsConfigFactoryTest {
 
-    private final static String SOME_FILE_NAME = "some_file";
-    private final static String APPEND_TEXT = "test-append";
+    private static final String SOME_FILE_NAME = "some_file";
+    private static final String APPEND_TEXT = "test-append";
 
     @Autowired
     private HdfsConfig hdfsConfig;
