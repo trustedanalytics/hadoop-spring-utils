@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @deprecated  As of release 0.4.8 (from 5th Oct 2015), replaced by {@see #EnableHdfs()}.
+ * @deprecated  As of release 0.4.8 (from 5th Oct 2015), replaced by {@link EnableHdfs}.
  *    Interface name has been changed for better show of its meaning.
  */
 @Deprecated
