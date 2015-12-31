@@ -33,6 +33,7 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Map;
 
 
@@ -76,7 +77,9 @@ public class HdfsConfigFactory {
         if (Strings.isNullOrEmpty(folder)) {
             return createConfig(fileSystem, createTmpDir(), "hdfs");
         }
-        return createConfig(fileSystem, folder, "hdfs");
+        // we need absolute path so that using HdfsConfig.getPath() works as expected
+        String absolutePath = Paths.get(folder).toAbsolutePath().toString();
+        return createConfig(fileSystem, absolutePath, "hdfs");
     }
 
     private String createTmpDir() {
@@ -101,6 +104,7 @@ public class HdfsConfigFactory {
         throws IOException, LoginException {
         Path folder = new Path(hdfsUri);
         fileSystem.setWorkingDirectory(folder);
+
         return new HdfsConfig(fileSystem, hdfsUser, folder);
     }
 
