@@ -1,3 +1,5 @@
+[![Dependency Status](https://www.versioneye.com/user/projects/5723682aba37ce00464e04d0/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5723682aba37ce00464e04d0)
+
 # Utils to initialize Hadoop core Java objects
 
 For now it only supports HDFS and so documentation is only limited to this case. Will be extended as new features are added.
